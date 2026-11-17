@@ -292,12 +292,13 @@ input,textarea{font:inherit}
 </div>
 </fieldset>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
-<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Your name<input name="name" type="text" style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px"></label>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Your name<input name="name" type="text" required autocomplete="name" style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px"></label>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Business name<input name="business" type="text" style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px"></label>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Email<input name="email" type="email" required style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px"></label>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Phone<input name="phone" type="tel" style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px"></label>
 </div>
 <label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 700; color: #C9CDD4">Project details — sizes, quantity, deadline<textarea name="details" rows="4" style="background: rgba(7,8,20,0.8); border: 1px solid rgba(185,168,255,0.3); border-radius: 12px; padding: 14px; color: #ffffff; font-size: 16px; resize: vertical"></textarea></label>
+<p id="qErr" role="alert" hidden style="margin:0;color:#FFB4B4;font-weight:600">Sorry, that didn't send. Please call or text <a href="tel:+13528162574" style="color:#FFC72C">352-816-2574</a> or email <a href="mailto:Graphicsignsaccessories@outlook.com" style="color:#FFC72C">Graphicsignsaccessories@outlook.com</a>.</p>
 <button type="submit" style="background: #FFC72C; color: #16181D; border: 0; padding: 18px 28px; border-radius: 999px; font-weight: 800; font-size: 17px; cursor: pointer; min-height: 44px; box-shadow: 0 0 32px rgba(255,199,44,0.45)">Request my free quote</button>
 </form>
 
@@ -341,10 +342,16 @@ document.querySelectorAll('.svc').forEach(function(b){b.addEventListener('click'
  document.querySelectorAll('.svc').forEach(function(x){var on=x===b;x.setAttribute('aria-pressed',on);x.style.background=on?'#FFC72C':'rgba(109,74,255,0.12)';x.style.color=on?'#16181D':'#ffffff';x.style.borderColor=on?'#FFC72C':'rgba(185,168,255,0.5)';});
 });});
 var f=document.getElementById('quoteForm'),t=document.getElementById('thanks');
-f.addEventListener('submit',function(e){e.preventDefault();var d=new FormData(f);
- var body='Service: '+picked+'\nName: '+(d.get('name')||'')+'\nBusiness: '+(d.get('business')||'')+'\nEmail: '+(d.get('email')||'')+'\nPhone: '+(d.get('phone')||'')+'\n\nProject details:\n'+(d.get('details')||'');
- window.location.href='mailto:Graphicsignsaccessories@outlook.com?subject='+encodeURIComponent('Quote request – '+picked+(d.get('business')?' – '+d.get('business'):''))+'&body='+encodeURIComponent(body);
- f.hidden=true;t.hidden=false;});
+var JF='263204740917052';
+f.addEventListener('submit',function(e){e.preventDefault();var d=new FormData(f),btn=f.querySelector('button[type=submit]'),err=document.getElementById('qErr');
+ var nm=(d.get('name')||'').trim().split(/\s+/),fd=new FormData();
+ fd.append('formID',JF);fd.append('simple_spc',JF+'-'+JF);fd.append('website','');
+ fd.append('q2_q2_textbox0',picked);fd.append('q3_q3_fullname1[first]',nm[0]||'');fd.append('q3_q3_fullname1[last]',nm.slice(1).join(' ')||'-');
+ fd.append('q4_q4_textbox2',d.get('business')||'');fd.append('q5_q5_email3',d.get('email')||'');fd.append('q6_q6_textbox4',d.get('phone')||'');
+ fd.append('q7_q7_textarea5',d.get('details')||'');fd.append('q8_q8_textbox6','Home page quote form');
+ btn.disabled=true;btn.dataset.t=btn.textContent;btn.textContent='Sending…';if(err)err.hidden=true;
+ fetch('https://submit.jotform.com/submit/'+JF+'/',{method:'POST',body:fd,mode:'no-cors'}).then(function(){f.hidden=true;t.hidden=false;t.querySelector('button,[tabindex]')&&t.focus&&t.focus();}).catch(function(){if(err)err.hidden=false;}).finally(function(){btn.disabled=false;btn.textContent=btn.dataset.t;});
+});
 document.getElementById('again').addEventListener('click',function(){f.reset();t.hidden=true;f.hidden=false;});
 })();
 </script>
